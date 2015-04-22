@@ -73,6 +73,7 @@
 #pragma comment (lib, "libcurld.lib")
 #pragma comment (lib, "libeay32d.lib")
 #pragma comment (lib, "ssleay32d.lib")
+#pragma comment (lib, "zlibd.lib")
 #else
 #pragma comment (lib, "libcurl.lib")
 #pragma comment (lib, "libeay32.lib")

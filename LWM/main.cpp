@@ -49,6 +49,11 @@ std::vector<size_t> workListDisp;
 void loadCfg()
 {
 	std::ifstream fin(".config");
+	if (!fin)
+	{
+		std::ofstream fout(".config");
+		fout.close();
+	}
 	std::string tmp;
 	std::getline(fin, tmp);
 	scriptURL = str2cstr(tmp);
