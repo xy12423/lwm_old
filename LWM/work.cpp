@@ -57,7 +57,7 @@ errInfo readWorkList()
 					size_t wID, uID;
 					if (str2num(data[LINE_WID], wID) != 0)
 						return errInfo("WID:Not a num");
-					work *newWork = new work(wID, data[LINE_NAME], data[LINE_INFO]);
+					work *newWork = new work(wID, decode(data[LINE_NAME]), decode(data[LINE_INFO]));
 					std::string name;
 					for (p2 = data[LINE_MEMBERS].cbegin(), pEnd2 = data[LINE_MEMBERS].cend(); p2 != pEnd2; p2++)
 					{
@@ -101,12 +101,12 @@ errInfo readWorkList()
 
 #ifndef _LWM_NO_EDIT
 
-errInfo newWork(const std::string &name, const std::string &info, work **ret)
+errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=add&name=" + name + "&info=" + info);
+	char *postField = str2cstr("field=work&operation=add&name=" + encode(name) + "&info=" + encode(info));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
@@ -160,14 +160,14 @@ errInfo delWork(size_t wID)
 	return errInfo();
 }
 
-errInfo work::editName(const std::string &newName)
+errInfo work::editName(const std::wstring &newName)
 {
 	name = newName;
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=name&value=" + newName);
+	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=name&value=" + encode(newName));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
@@ -189,14 +189,14 @@ errInfo work::editName(const std::string &newName)
 	return errInfo();
 }
 
-errInfo work::editInfo(const std::string &newInfo)
+errInfo work::editInfo(const std::wstring &newInfo)
 {
 	info = newInfo;
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=info&value=" + newInfo);
+	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=info&value=" + encode(newInfo));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);

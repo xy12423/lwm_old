@@ -14,5 +14,7 @@ struct errInfo
 
 char* str2cstr(std::string arg);
 std::string num2str(long long n);
+std::string encode(const std::wstring &str);
+std::wstring decode(const std::string &str);
 
 #endif

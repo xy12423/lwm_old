@@ -3,20 +3,20 @@
 #ifndef _H_WORK
 #define _H_WORK
 
-#include "errInfo.h"
+#include "utils.h"
 
 class work
 {
 public:
-	work(size_t _wID, const std::string &_name, const std::string &_info){ wID = _wID; name = _name; info = _info; };
+	work(size_t _wID, const std::wstring &_name, const std::wstring &_info){ wID = _wID; name = _name; info = _info; };
 	size_t getWID(){ return wID; };
-	const std::string &getName(){ return name; };
-	const std::string &getInfo(){ return info; };
+	const std::wstring &getName(){ return name; };
+	const std::wstring &getInfo(){ return info; };
 	void getMember(std::list<size_t> &ret){ std::for_each(members.begin(), members.end(), [&ret](size_t uID){ ret.push_back(uID); }); };
 
 #ifndef _LWM_NO_EDIT
-	errInfo editName(const std::string &newName);
-	errInfo editInfo(const std::string &newInfo);
+	errInfo editName(const std::wstring &newName);
+	errInfo editInfo(const std::wstring &newInfo);
 	errInfo addMember(size_t uID);
 	errInfo delMember(size_t uID);
 #endif
@@ -24,8 +24,8 @@ public:
 	friend errInfo readWorkList();
 private:
 	size_t wID;
-	std::string name;
-	std::string info;
+	std::wstring name;
+	std::wstring info;
 	std::set<size_t> members;
 #ifndef _LWM_NO_EDIT
 	errInfo writeMemList();
@@ -37,7 +37,7 @@ extern workListTp workList;
 
 errInfo readWorkList();
 #ifndef _LWM_NO_EDIT
-errInfo newWork(const std::string &name, const std::string &info, work **ret);
+errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret);
 errInfo delWork(size_t wID);
 #endif
 

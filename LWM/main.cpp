@@ -233,7 +233,7 @@ void mainFrame::refMemDispList()
 	std::list<size_t>::iterator itrM, itrMEnd;
 	std::set<size_t> memDispTmp;
 	std::set<size_t>::iterator itrD, itrDEnd;
-	std::string maskName = textSearchMem->GetValue();
+	std::wstring maskName = textSearchMem->GetValue().ToStdWstring();
 	bool enableSearch = !maskName.empty();
 	for (; itrG != itrGEnd; itrG++)
 	{
@@ -246,11 +246,11 @@ void mainFrame::refMemDispList()
 	itrDEnd = memDispTmp.end();
 	memListDisp.clear();
 	listMember->Clear();
-	std::string name;
+	std::wstring name;
 	for (; itrD != itrDEnd; itrD++)
 	{
 		name = memList[*itrD]->getName();
-		if (!enableSearch || name.find(maskName) != std::string::npos)
+		if (!enableSearch || name.find(maskName) != std::wstring::npos)
 		{
 			memListDisp.push_back(*itrD);
 			listMember->Append(name);
@@ -274,7 +274,7 @@ void mainFrame::buttonAddG_Click(wxCommandEvent& event)
 	if (name != wxEmptyString)
 	{
 		group *newG;
-		errInfo err = newGrp(name.ToStdString(), &newG);
+		errInfo err = newGrp(name.ToStdWstring(), &newG);
 		checkErr;
 		int newIndex = listGroup->Append(name);
 		listGroup->Check(newIndex);
@@ -329,7 +329,7 @@ void mainFrame::buttonRenameG_Click(wxCommandEvent& event)
 		int grpIndex = listGroup->GetSelection();
 		if (grpIndex >= 0)
 		{
-			errInfo err = grpList[grpListDisp[grpIndex]]->editName(name.ToStdString());
+			errInfo err = grpList[grpListDisp[grpIndex]]->editName(name.ToStdWstring());
 			checkErr;
 			listGroup->SetString(grpIndex, name);
 			listMemGroup->SetString(grpIndex, name);
@@ -384,7 +384,7 @@ void mainFrame::buttonAddM_Click(wxCommandEvent& event)
 	if (name != wxEmptyString)
 	{
 		member *newM;
-		errInfo err = newMem(name.ToStdString(), uExtInfo(), &newM);
+		errInfo err = newMem(name.ToStdWstring(), uExtInfo(), &newM);
 		if (err.err)
 		{
 			wxMessageBox(err.info, wxT("ERROR"), wxOK | wxICON_ERROR);
@@ -507,7 +507,7 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 		if (nwDlg.name == wxEmptyString)
 			return;
 		work *newW;
-		errInfo err = newWork(nwDlg.name.ToStdString(), nwDlg.info.ToStdString(), &newW);
+		errInfo err = newWork(nwDlg.name.ToStdWstring(), nwDlg.info.ToStdWstring(), &newW);
 		checkErr;
 		err = newW->addMember(sel);
 		checkErr;
@@ -569,9 +569,9 @@ void mainFrame::buttonEditMW_Click(wxCommandEvent& event)
 	{
 		textWorkInfo->SetValue(nwDlg.info);
 		work *sel = workList[workListDisp[listMemWork->GetSelection()]];
-		errInfo err = sel->editName(nwDlg.name.ToStdString());
+		errInfo err = sel->editName(nwDlg.name.ToStdWstring());
 		checkErr;
-		err = sel->editInfo(nwDlg.info.ToStdString());
+		err = sel->editInfo(nwDlg.info.ToStdWstring());
 		checkErr;
 	}
 #endif
@@ -585,8 +585,8 @@ void mainFrame::buttonApply_Click(wxCommandEvent& event)
 	int sel = listMember->GetSelection();
 	member *sMem = memList[memListDisp[sel]];
 	listMember->SetString(sel, textID->GetValue());
-	sMem->editName(textID->GetValue().ToStdString());
-	sMem->editInfo(uExtInfo(textSource->GetValue().ToStdString(), textInfo->GetValue().ToStdString()));
+	sMem->editName(textID->GetValue().ToStdWstring());
+	sMem->editInfo(uExtInfo(textSource->GetValue().ToStdWstring(), textInfo->GetValue().ToStdWstring()));
 	errInfo err = sMem->applyEdit();
 	checkErr;
 #endif

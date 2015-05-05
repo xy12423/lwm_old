@@ -122,7 +122,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="errInfo.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="form_editwork.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="group.h" />
@@ -132,7 +132,7 @@
     <ClInclude Include="work.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="errInfo.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="form_editwork.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="group.cpp" />

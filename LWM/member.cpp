@@ -59,7 +59,7 @@ errInfo readMemList()
 					size_t uID, gID, wID;
 					if (str2num(data[LINE_UID], uID) != 0)
 						return errInfo("UID:Not a num");
-					member *newMember = new member(uID, data[LINE_NAME], uExtInfo(data[LINE_SRC], data[LINE_INFO]));
+					member *newMember = new member(uID, decode(data[LINE_NAME]), uExtInfo(decode(data[LINE_SRC]), decode(data[LINE_INFO])));
 					std::string name;
 
 					for (p2 = data[LINE_GROUPS].cbegin(), pEnd2 = data[LINE_GROUPS].cend(); p2 != pEnd2; p2++)
@@ -124,12 +124,12 @@ errInfo readMemList()
 
 #ifndef _LWM_NO_EDIT
 
-errInfo newMem(const std::string &name, const uExtInfo &extInfo, member **ret)
+errInfo newMem(const std::wstring &name, const uExtInfo &extInfo, member **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=member&operation=add&name=" + name + "&src=" + extInfo.src + "&info=" + extInfo.info);
+	char *postField = str2cstr("field=member&operation=add&name=" + encode(name) + "&src=" + encode(extInfo.src) + "&info=" + encode(extInfo.info));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
@@ -272,11 +272,11 @@ errInfo member::applyEdit()
 	std::string postField;
 	CURLcode success;
 
-	postField = postFieldPre + "&item=name&value=" + name;
+	postField = postFieldPre + "&item=name&value=" + encode(name);
 	doEDIT;
-	postField = postFieldPre + "&item=src&value=" + extInfo.src;
+	postField = postFieldPre + "&item=src&value=" + encode(extInfo.src);
 	doEDIT;
-	postField = postFieldPre + "&item=info&value=" + extInfo.info;
+	postField = postFieldPre + "&item=info&value=" + encode(extInfo.info);
 	doEDIT;
 
 	curl_easy_cleanup(handle);

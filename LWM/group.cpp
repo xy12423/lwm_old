@@ -56,7 +56,7 @@ errInfo readGrpList()
 					size_t gID, uID;
 					if (str2num(data[LINE_GID], gID) != 0)
 						return errInfo("GID:Not a num");
-					group *newGroup = new group(gID, data[LINE_NAME]);
+					group *newGroup = new group(gID, decode(data[LINE_NAME]));
 					std::string name;
 					for (p2 = data[LINE_MEMBERS].cbegin(), pEnd2 = data[LINE_MEMBERS].cend(); p2 != pEnd2; p2++)
 					{
@@ -100,12 +100,12 @@ errInfo readGrpList()
 
 #ifndef _LWM_NO_EDIT
 
-errInfo newGrp(const std::string& name, group **ret)
+errInfo newGrp(const std::wstring& name, group **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=group&operation=add&name=" + name);
+	char *postField = str2cstr("field=group&operation=add&name=" + encode(name));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
@@ -159,14 +159,14 @@ errInfo delGrp(size_t gID)
 	return errInfo();
 }
 
-errInfo group::editName(const std::string &newName)
+errInfo group::editName(const std::wstring &newName)
 {
 	name = newName;
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=group&operation=edit&id=" + num2str(gID) + "&item=name&value=" + newName);
+	char *postField = str2cstr("field=group&operation=edit&id=" + num2str(gID) + "&item=name&value=" + encode(newName));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
