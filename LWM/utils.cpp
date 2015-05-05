@@ -59,7 +59,7 @@ std::string encode(const std::wstring &str)
 	std::string ret;
 	std::string buf(wxConvUTF8.cWC2MB(str.c_str()));
 	if (buf.size() % 3 == 1)
-		buf.push_back(0);
+		buf.push_back('\0');
 	encode(ret, (BYTE *)(buf.c_str()), buf.size());
 	return ret;
 }
