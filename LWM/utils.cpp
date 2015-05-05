@@ -66,5 +66,8 @@ std::string encode(const std::wstring &str)
 
 std::wstring decode(const std::string &str)
 {
-	return std::wstring(wxConvUTF8.cMB2WC(str.c_str()));
+	wxWCharBuffer buf = wxConvUTF8.cMB2WC(str.c_str());
+	if (buf.length() == 0)
+		return std::wstring();
+	return std::wstring(buf);
 }
