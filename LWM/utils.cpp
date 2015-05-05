@@ -54,13 +54,22 @@ void encode(std::string &ret, BYTE* buf, int size)
 	}
 }
 
+std::string encode(std::string str)
+{
+	std::string ret;
+	if (str.length() % 3 == 1)
+		str.push_back('\0');
+	encode(ret, (BYTE *)(str.c_str()), str.length());
+	return ret;
+}
+
 std::string encode(const std::wstring &str)
 {
 	std::string ret;
 	std::string buf(wxConvUTF8.cWC2MB(str.c_str()));
-	if (buf.size() % 3 == 1)
+	if (buf.length() % 3 == 1)
 		buf.push_back('\0');
-	encode(ret, (BYTE *)(buf.c_str()), buf.size());
+	encode(ret, (BYTE *)(buf.c_str()), buf.length());
 	return ret;
 }
 

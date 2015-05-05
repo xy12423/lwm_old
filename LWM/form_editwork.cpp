@@ -12,7 +12,7 @@ EVT_BUTTON(ID_BUTTONAPPLY, eworkFrame::buttonApply_Click)
 
 wxEND_EVENT_TABLE()
 
-eworkFrame::eworkFrame()
+eworkFrame::eworkFrame(const wxString &_name, const wxString &_info)
 	: wxDialog(NULL, ID_FRAME, guiStrData[TITLE_EWORK], wxDefaultPosition, wxSize(_GUI_SIZE_X, _GUI_SIZE_Y))
 {
 	Center();
@@ -25,7 +25,7 @@ eworkFrame::eworkFrame()
 		wxSize(41, 21)
 		);
 	textName = new wxTextCtrl(panel, ID_TEXTNAME,
-		wxEmptyString,
+		_name,
 		wxPoint(59, 12),
 		wxSize(213, 21)
 		);
@@ -35,7 +35,7 @@ eworkFrame::eworkFrame()
 		wxSize(53, 21)
 		);
 	textInfo = new wxTextCtrl(panel, ID_TEXTINFO,
-		wxEmptyString,
+		_info,
 		wxPoint(14, 60),
 		wxSize(258, 157),
 		wxTE_MULTILINE
@@ -45,6 +45,8 @@ eworkFrame::eworkFrame()
 		wxPoint(14, 223),
 		wxSize(258, 30)
 		);
+	name = _name;
+	info = _info;
 }
 
 void eworkFrame::buttonApply_Click(wxCommandEvent& event)

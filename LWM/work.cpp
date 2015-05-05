@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "global.h"
 #include "work.h"
+#include "member.h"
 
 workListTp workList;
 
@@ -28,9 +29,12 @@ errInfo readWorkList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	std::for_each(workList.begin(), workList.end(), [](std::pair<size_t, work*> wPtr){
 		delete wPtr.second;
@@ -106,21 +110,24 @@ errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=add&name=" + encode(name) + "&info=" + encode(info));
+	std::string postField = "field=work&operation=add&name=" + encode(name) + "&info=" + encode(info);
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField);
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
 	success = curl_easy_perform(handle);
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	size_t newID;
 	if (str2num(buf, newID) != 0)
@@ -138,21 +145,24 @@ errInfo delWork(size_t wID)
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=del&id=" + num2str(wID));
+	std::string postField = "field=work&operation=del&id=" + num2str(wID);
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField);
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
 	success = curl_easy_perform(handle);
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -167,21 +177,24 @@ errInfo work::editName(const std::wstring &newName)
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=name&value=" + encode(newName));
+	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=name&value=" + encode(newName);
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField);
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
 	success = curl_easy_perform(handle);
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -196,21 +209,24 @@ errInfo work::editInfo(const std::wstring &newInfo)
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=info&value=" + encode(newInfo));
+	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=info&value=" + encode(newInfo);
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField);
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
 	success = curl_easy_perform(handle);
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -241,21 +257,24 @@ errInfo work::writeMemList()
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=work&operation=edit&id=" + num2str(wID) + "&item=member&value=" + newMemberStr);
+	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=member&value=" + encode(newMemberStr);
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField);
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
 	success = curl_easy_perform(handle);
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);

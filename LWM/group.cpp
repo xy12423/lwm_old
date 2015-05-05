@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "global.h"
 #include "group.h"
+#include "member.h"
 
 grpListTp grpList;
 
@@ -27,9 +28,12 @@ errInfo readGrpList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	std::for_each(grpList.begin(), grpList.end(), [](std::pair<size_t, group*> gPtr){
 		delete gPtr.second;
@@ -117,9 +121,12 @@ errInfo newGrp(const std::wstring& name, group **ret)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	size_t newID;
 	if (str2num(buf, newID) != 0)
@@ -149,9 +156,12 @@ errInfo delGrp(size_t gID)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -178,9 +188,12 @@ errInfo group::editName(const std::wstring &newName)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -211,7 +224,7 @@ errInfo group::writeMemList()
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
 	char *addCStr = str2cstr(scriptURL);
-	char *postField = str2cstr("field=group&operation=edit&id=" + num2str(gID) + "&item=member&value=" + newMemberStr);
+	char *postField = str2cstr("field=group&operation=edit&id=" + num2str(gID) + "&item=member&value=" + encode(newMemberStr));
 	char *errBuf = new char[2048];
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
@@ -223,9 +236,12 @@ errInfo group::writeMemList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);

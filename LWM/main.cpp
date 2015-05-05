@@ -502,7 +502,7 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 	int sel = addDlg.GetSelection();
 	if (sel == 0)
 	{
-		eworkFrame nwDlg;
+		eworkFrame nwDlg(wxEmptyString, wxEmptyString);
 		nwDlg.ShowModal();
 		if (nwDlg.name == wxEmptyString)
 			return;
@@ -539,6 +539,8 @@ void mainFrame::buttonDelMW_Click(wxCommandEvent& event)
 #ifdef _LWM_NO_EDIT
 	wxMessageBox(wxT("Read-Only version"), wxT("ERROR"), wxOK | wxICON_ERROR);
 #else
+	if (listMemWork->GetSelection() == -1)
+		return;
 	size_t wID = workListDisp[listMemWork->GetSelection()];
 	size_t uID = memListDisp[listMember->GetSelection()];
 	errInfo err = memList[uID]->delWork(wID);
@@ -563,12 +565,14 @@ void mainFrame::buttonEditMW_Click(wxCommandEvent& event)
 #ifdef _LWM_NO_EDIT
 	wxMessageBox(wxT("Read-Only version"), wxT("ERROR"), wxOK | wxICON_ERROR);
 #else
-	eworkFrame nwDlg;
+	if (listMemWork->GetSelection() == -1)
+		return;
+	work *sel = workList[workListDisp[listMemWork->GetSelection()]];
+	eworkFrame nwDlg(sel->getName(), sel->getInfo());
 	nwDlg.ShowModal();
 	if (nwDlg.name != wxEmptyString)
 	{
 		textWorkInfo->SetValue(nwDlg.info);
-		work *sel = workList[workListDisp[listMemWork->GetSelection()]];
 		errInfo err = sel->editName(nwDlg.name.ToStdWstring());
 		checkErr;
 		err = sel->editInfo(nwDlg.info.ToStdWstring());

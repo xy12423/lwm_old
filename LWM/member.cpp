@@ -30,9 +30,12 @@ errInfo readMemList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	std::for_each(memList.begin(), memList.end(), [](std::pair<size_t, member*> mPtr){
 		delete mPtr.second;
@@ -141,9 +144,12 @@ errInfo newMem(const std::wstring &name, const uExtInfo &extInfo, member **ret)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	size_t newID;
 	if (str2num(buf, newID) != 0)
@@ -173,9 +179,12 @@ errInfo delMem(size_t uID)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		return errInfo(std::string("E:network:") + errBuf);
+		std::string err(errBuf);
+		delete[] errBuf;
+		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -188,7 +197,9 @@ errInfo delMem(size_t uID)
 				if (success != CURLcode::CURLE_OK)	\
 				{	\
 					curl_easy_cleanup(handle);	\
-					return errInfo(std::string("E:network:") + errBuf);	\
+					std::string err(errBuf);	\
+					delete[] errBuf;	\
+					return errInfo("E:network:" + err);	\
 				}
 
 errInfo member::writeGrpList()
@@ -210,10 +221,11 @@ errInfo member::writeGrpList()
 
 	std::string postField;
 	CURLcode success;
-	postField = "field=member&operation=edit&id=" + num2str(uID) + "&item=group&value=" + newGroupStr;
+	postField = "field=member&operation=edit&id=" + num2str(uID) + "&item=group&value=" + encode(newGroupStr);
 	doEDIT;
 
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -240,10 +252,11 @@ errInfo member::writeWorkList()
 
 	std::string postField;
 	CURLcode success;
-	postField = "field=member&operation=edit&id=" + num2str(uID) + "&item=work&value=" + newWorkStr;
+	postField = "field=member&operation=edit&id=" + num2str(uID) + "&item=work&value=" + encode(newWorkStr);
 	doEDIT;
 
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -280,6 +293,7 @@ errInfo member::applyEdit()
 	doEDIT;
 
 	curl_easy_cleanup(handle);
+	delete[] errBuf;
 
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);

@@ -6,7 +6,7 @@
 class eworkFrame : public wxDialog
 {
 public:
-	eworkFrame();
+	eworkFrame(const wxString &_name, const wxString &_info);
 	enum itemID{
 		ID_FRAME,
 		ID_TEXTNAME, ID_TEXTINFO, ID_BUTTONAPPLY
