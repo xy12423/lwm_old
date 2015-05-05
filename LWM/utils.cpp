@@ -56,6 +56,12 @@ void encode(std::string &ret, BYTE* buf, int size)
 	}
 	switch (ptr - ptr_end)
 	{
+		case 0:
+			ret.push_back(encode64[*ptr >> 2]);
+			ret.push_back(encode64[((*ptr << 4) | ptr[1] >> 4) & 0x3F]);
+			ret.push_back(encode64[((ptr[1] << 2) | ptr[2] >> 6) & 0x3F]);
+			ret.push_back(encode64[ptr[2] & 0x3F]);
+			break;
 		case 1:
 			ret.push_back(encode64[*ptr >> 2]);
 			ret.push_back(encode64[((*ptr << 4) | ptr[1] >> 4) & 0x3F]);

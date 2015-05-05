@@ -12,6 +12,8 @@ struct errInfo
 	std::string info;
 };
 
+typedef unsigned char BYTE;
+
 char* str2cstr(std::string arg);
 std::string num2str(long long n);
 std::string encode(std::string str);
