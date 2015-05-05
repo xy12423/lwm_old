@@ -498,7 +498,8 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 	int result = addDlg.ShowModal();
 	if (result == wxID_CANCEL)
 		return;
-	member *sMem = memList[memListDisp[listMember->GetSelection()]];
+	size_t uID = memListDisp[listMember->GetSelection()];
+	member *sMem = memList[uID];
 	int sel = addDlg.GetSelection();
 	if (sel == 0)
 	{
@@ -509,7 +510,7 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 		work *newW;
 		errInfo err = newWork(nwDlg.name.ToStdWstring(), nwDlg.info.ToStdWstring(), &newW);
 		checkErr;
-		err = newW->addMember(sel);
+		err = newW->addMember(uID);
 		checkErr;
 		err = sMem->addWork(newW->getWID());
 		checkErr;
@@ -517,7 +518,7 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 	else if (sel > 0)
 	{
 		sel--;
-		errInfo err = workList[sel]->addMember(sel);
+		errInfo err = workList[sel]->addMember(uID);
 		checkErr;
 		err = sMem->addWork(sel);
 		checkErr;

@@ -85,7 +85,7 @@
 				case "group":
 				case "member":
 				case "work":
-					$result = mysql_query("DELETE FROM `" . $_POST["field"] . "` WHERE `id`=" . decodeStr($_POST["id"]), $con);
+					$result = mysql_query("DELETE FROM `" . $_POST["field"] . "` WHERE `id`=" . $_POST["id"], $con);
 					if (!$result) die(mysql_error());
 					break;
 				default:

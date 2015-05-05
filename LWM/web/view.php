@@ -29,7 +29,7 @@
 		
 		foreach ($units as $id)
 		{
-			if ($id == '')
+			if ($id == "" || $id == '\0')
 				break;
 			$result = mysql_query("SELECT * FROM `" . $field . "` WHERE `id`=" . $id, $con);
 			if (!$result) die(mysql_error());
