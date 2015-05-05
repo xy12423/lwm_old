@@ -64,22 +64,7 @@ std::string encode(const std::wstring &str)
 	return ret;
 }
 
-void decode(std::string &ret, BYTE* buf, int size)
-{
-	BYTE *ptr_end = buf + size;
-	for (BYTE *ptr = buf; ptr < ptr_end; ptr += 4)
-	{
-		ret.push_back(decode64[ptr[0]] << 2 | decode64[ptr[1]] >> 4);
-		ret.push_back(decode64[ptr[1]] << 4 | decode64[ptr[2]] >> 2);
-		ret.push_back(((decode64[ptr[2]] << 6) & 0xc0) | decode64[ptr[3]]);
-	}
-}
-
 std::wstring decode(const std::string &str)
 {
-	std::string buf;
-	decode(buf, (BYTE *)(str.c_str()), str.size());
-	if (buf.empty())
-		return std::wstring();
-	return std::wstring(wxConvUTF8.cMB2WC(buf.c_str()));
+	return std::wstring(wxConvUTF8.cMB2WC(str.c_str()));
 }
