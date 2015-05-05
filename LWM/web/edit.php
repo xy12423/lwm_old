@@ -2,7 +2,7 @@
 	function myErrHandler($error_level, $error_message){}
 	function decodeStr($str)
 	{
-		return base64_decode(strtr($str, "-_", "+/"));
+		return base64_decode(strtr($str, "-_|", "+/="));
 	}
 	
 	set_error_handler('myErrHandler', E_NOTICE);

@@ -41,24 +41,39 @@ const char decode64[] = {
 	41, 42, 43, 44, 45, 46, 47, 48,
 	49, 50, 51, -1, -1, -1, -1, -1
 };
+const char space64 = '|';
 
 void encode(std::string &ret, BYTE* buf, int size)
 {
-	BYTE *ptr_end = buf + size;
-	for (BYTE *ptr = buf; ptr < ptr_end; ptr += 3)
+	BYTE *ptr_end = buf + size - 3;
+	BYTE *ptr = buf;
+	for (; ptr < ptr_end; ptr += 3)
 	{
 		ret.push_back(encode64[*ptr >> 2]);
 		ret.push_back(encode64[((*ptr << 4) | ptr[1] >> 4) & 0x3F]);
 		ret.push_back(encode64[((ptr[1] << 2) | ptr[2] >> 6) & 0x3F]);
 		ret.push_back(encode64[ptr[2] & 0x3F]);
 	}
+	switch (ptr - ptr_end)
+	{
+		case 1:
+			ret.push_back(encode64[*ptr >> 2]);
+			ret.push_back(encode64[((*ptr << 4) | ptr[1] >> 4) & 0x3F]);
+			ret.push_back(encode64[(ptr[1] << 2) & 0x3F]);
+			ret.push_back(space64);
+			break;
+		case 2:
+			ret.push_back(encode64[*ptr >> 2]);
+			ret.push_back(encode64[(*ptr << 4) & 0x3F]);
+			ret.push_back(space64);
+			ret.push_back(space64);
+			break;
+	}
 }
 
 std::string encode(std::string str)
 {
 	std::string ret;
-	if (str.length() % 3 == 1)
-		str.push_back('\0');
 	encode(ret, (BYTE *)(str.c_str()), str.length());
 	return ret;
 }
@@ -67,8 +82,6 @@ std::string encode(const std::wstring &str)
 {
 	std::string ret;
 	std::string buf(wxConvUTF8.cWC2MB(str.c_str()));
-	if (buf.length() % 3 == 1)
-		buf.push_back('\0');
 	encode(ret, (BYTE *)(buf.c_str()), buf.length());
 	return ret;
 }
