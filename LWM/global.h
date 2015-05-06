@@ -16,6 +16,8 @@ enum guiStrID{
 	TITLE_EWORK,
 	TEXT_LABELNAMEW, TEXT_LABELINFOW, TEXT_BUTTONAPPLYW,
 
+	TEXT_CONFIRM_DEL, TITLE_CONFIRM,
+
 	guiStrCount
 };
 extern wxString guiStrData[guiStrCount];

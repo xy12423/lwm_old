@@ -287,20 +287,24 @@ void mainFrame::buttonDelG_Click(wxCommandEvent& event)
 	int grpIndex = listGroup->GetSelection();
 	if (grpIndex > 0)
 	{
-		std::list<size_t> depMemList;
-		grpList[grpListDisp[grpIndex]]->getMember(depMemList);
-		std::for_each(depMemList.begin(), depMemList.end(), [grpIndex](size_t uID){
-			memList[uID]->delGroup(grpIndex);
-		});
-		errInfo err = delGrp(grpIndex);
-		checkErr;
-		listGroup->Delete(grpIndex);
-		listMemGroup->Delete(grpIndex);
-		grpListDisp.clear();
-		std::for_each(grpList.begin(), grpList.end(), [](std::pair<size_t, group*> gPtr){
-			grpListDisp.push_back(gPtr.first);
-		});
-		refMemDispList();
+		int confirm = wxMessageBox(guiStrData[TEXT_CONFIRM_DEL], guiStrData[TITLE_CONFIRM], wxYES_NO | wxNO_DEFAULT);
+		if (confirm == wxYES)
+		{
+			std::list<size_t> depMemList;
+			grpList[grpListDisp[grpIndex]]->getMember(depMemList);
+			std::for_each(depMemList.begin(), depMemList.end(), [grpIndex](size_t uID){
+				memList[uID]->delGroup(grpIndex);
+			});
+			errInfo err = delGrp(grpIndex);
+			checkErr;
+			listGroup->Delete(grpIndex);
+			listMemGroup->Delete(grpIndex);
+			grpListDisp.clear();
+			std::for_each(grpList.begin(), grpList.end(), [](std::pair<size_t, group*> gPtr){
+				grpListDisp.push_back(gPtr.first);
+			});
+			refMemDispList();
+		}
 	}
 	else if (grpIndex == 0)
 		wxMessageBox(wxT("Can't delete default group"), wxT("ERROR"), wxOK | wxICON_ERROR);
@@ -308,17 +312,17 @@ void mainFrame::buttonDelG_Click(wxCommandEvent& event)
 
 void mainFrame::buttonRenameG_Click(wxCommandEvent& event)
 {
-	wxTextEntryDialog inputDlg(this, wxT("请输入组名"), wxT("输入组名"));
-	inputDlg.ShowModal();
-	wxString name = inputDlg.GetValue();
-	if (name != wxEmptyString)
+	int grpIndex = listGroup->GetSelection();
+	if (grpIndex >= 0)
 	{
-		int grpIndex = listGroup->GetSelection();
-		if (grpIndex >= 0)
+		wxTextEntryDialog inputDlg(this, wxT("请输入组名"), wxT("输入组名"), listGroup->GetStringSelection());
+		inputDlg.ShowModal();
+		wxString name = inputDlg.GetValue();
+		if (name != wxEmptyString)
 		{
 			errInfo err = grpList[grpListDisp[grpIndex]]->editName(name.ToStdWstring());
 			checkErr;
-			listGroup->SetString(grpIndex, name);
+			listGroup->SetStringSelection(name);
 			listMemGroup->SetString(grpIndex, name);
 		}
 	}
@@ -387,23 +391,27 @@ void mainFrame::buttonDelM_Click(wxCommandEvent& event)
 	int memIndex = memListDisp[listMember->GetSelection()];
 	if (memIndex >= 0)
 	{
-		std::list<size_t> depList;
-		memList[memIndex]->getGroup(depList);
-		std::for_each(depList.begin(), depList.end(), [memIndex](size_t gID){
-			grpList[grpListDisp[gID]]->delMember(memIndex);
-		});
-		depList.clear();
-		memList[memIndex]->getWork(depList);
-		std::for_each(depList.begin(), depList.end(), [memIndex](size_t wID){
-			workList[wID]->delMember(memIndex);
-		});
-		errInfo err = delMem(memIndex);
-		if (err.err)
+		int confirm = wxMessageBox(guiStrData[TEXT_CONFIRM_DEL], guiStrData[TITLE_CONFIRM], wxYES_NO | wxNO_DEFAULT);
+		if (confirm == wxYES)
 		{
-			wxMessageBox(err.info, wxT("ERROR"), wxOK | wxICON_ERROR);
-			return;
+			std::list<size_t> depList;
+			memList[memIndex]->getGroup(depList);
+			std::for_each(depList.begin(), depList.end(), [memIndex](size_t gID){
+				grpList[grpListDisp[gID]]->delMember(memIndex);
+			});
+			depList.clear();
+			memList[memIndex]->getWork(depList);
+			std::for_each(depList.begin(), depList.end(), [memIndex](size_t wID){
+				workList[wID]->delMember(memIndex);
+			});
+			errInfo err = delMem(memIndex);
+			if (err.err)
+			{
+				wxMessageBox(err.info, wxT("ERROR"), wxOK | wxICON_ERROR);
+				return;
+			}
+			refMemDispList();
 		}
-		refMemDispList();
 	}
 }
 
@@ -509,22 +517,26 @@ void mainFrame::buttonDelMW_Click(wxCommandEvent& event)
 {
 	if (listMemWork->GetSelection() == -1)
 		return;
-	size_t wID = workListDisp[listMemWork->GetSelection()];
-	size_t uID = memListDisp[listMember->GetSelection()];
-	errInfo err = memList[uID]->delWork(wID);
-	checkErr;
-	err = workList[wID]->delMember(uID);
-	checkErr;
-	textWorkInfo->SetValue(wxEmptyString);
+	int confirm = wxMessageBox(guiStrData[TEXT_CONFIRM_DEL], guiStrData[TITLE_CONFIRM], wxYES_NO | wxNO_DEFAULT);
+	if (confirm == wxYES)
+	{
+		size_t wID = workListDisp[listMemWork->GetSelection()];
+		size_t uID = memListDisp[listMember->GetSelection()];
+		errInfo err = memList[uID]->delWork(wID);
+		checkErr;
+		err = workList[wID]->delMember(uID);
+		checkErr;
+		textWorkInfo->SetValue(wxEmptyString);
 
-	std::list<size_t> workID;
-	memList[uID]->getWork(workID);
-	workListDisp.clear();
-	listMemWork->Clear();
-	std::for_each(workID.begin(), workID.end(), [this](size_t wID){
-		listMemWork->Append(workList[wID]->getName());
-		workListDisp.push_back(wID);
-	});
+		std::list<size_t> workID;
+		memList[uID]->getWork(workID);
+		workListDisp.clear();
+		listMemWork->Clear();
+		std::for_each(workID.begin(), workID.end(), [this](size_t wID){
+			listMemWork->Append(workList[wID]->getName());
+			workListDisp.push_back(wID);
+		});
+	}
 }
 
 void mainFrame::buttonEditMW_Click(wxCommandEvent& event)

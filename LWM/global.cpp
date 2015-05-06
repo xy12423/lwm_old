@@ -12,7 +12,9 @@ wxString guiStrData[guiStrCount] = {
 	wxT("应用更改"),
 
 	wxT("更改工作信息"),
-	wxT("工作名"), wxT("详细信息"), wxT("应用更改")
+	wxT("工作名"), wxT("详细信息"), wxT("应用更改"),
+
+	wxT("请确认删除操作"), wxT("确认")
 };
 
 const char* scriptURL = "http://xy12423.wicp.net:4825/edit.php";
