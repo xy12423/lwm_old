@@ -102,8 +102,6 @@ errInfo readGrpList()
 	return errInfo();
 }
 
-#ifndef _LWM_NO_EDIT
-
 errInfo newGrp(const std::wstring& name, group **ret)
 {
 	dataBuf buf;
@@ -248,5 +246,3 @@ errInfo group::writeMemList()
 
 	return errInfo();
 }
-
-#endif

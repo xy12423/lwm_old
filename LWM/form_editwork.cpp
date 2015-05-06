@@ -3,8 +3,13 @@
 #include "work.h"
 #include "form_editwork.h"
 
+#ifdef __WXMSW__
 #define _GUI_SIZE_X 300
 #define _GUI_SIZE_Y 300
+#else
+#define _GUI_SIZE_X 280
+#define _GUI_SIZE_Y 260
+#endif
 
 wxBEGIN_EVENT_TABLE(eworkFrame, wxDialog)
 
@@ -22,7 +27,7 @@ eworkFrame::eworkFrame(const wxString &_name, const wxString &_info)
 	label = new wxStaticText(panel, wxID_ANY,
 		guiStrData[TEXT_LABELNAMEW],
 		wxPoint(12, 12),
-		wxSize(41, 21)
+		wxSize(47, 21)
 		);
 	textName = new wxTextCtrl(panel, ID_TEXTNAME,
 		_name,
@@ -32,7 +37,7 @@ eworkFrame::eworkFrame(const wxString &_name, const wxString &_info)
 	label = new wxStaticText(panel, wxID_ANY,
 		guiStrData[TEXT_LABELINFOW],
 		wxPoint(12, 39),
-		wxSize(53, 21)
+		wxSize(58, 21)
 		);
 	textInfo = new wxTextCtrl(panel, ID_TEXTINFO,
 		_info,

@@ -103,8 +103,6 @@ errInfo readWorkList()
 	return errInfo();
 }
 
-#ifndef _LWM_NO_EDIT
-
 errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 {
 	dataBuf buf;
@@ -281,5 +279,3 @@ errInfo work::writeMemList()
 
 	return errInfo();
 }
-
-#endif

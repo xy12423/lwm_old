@@ -125,8 +125,6 @@ errInfo readMemList()
 	return errInfo();
 }
 
-#ifndef _LWM_NO_EDIT
-
 errInfo newMem(const std::wstring &name, const uExtInfo &extInfo, member **ret)
 {
 	dataBuf buf;
@@ -300,5 +298,3 @@ errInfo member::applyEdit()
 
 	return errInfo();
 }
-
-#endif
