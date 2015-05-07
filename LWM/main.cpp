@@ -322,7 +322,7 @@ void mainFrame::buttonRenameG_Click(wxCommandEvent& event)
 		{
 			errInfo err = grpList[grpListDisp[grpIndex]]->editName(name.ToStdWstring());
 			checkErr;
-			listGroup->SetStringSelection(name);
+			listGroup->SetString(grpIndex, name);
 			listMemGroup->SetString(grpIndex, name);
 		}
 	}
