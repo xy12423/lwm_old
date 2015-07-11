@@ -70,7 +70,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\boost;D:\cpplibs\include;F:\wxWidgets\include;F:\wxWidgets\lib\vc_lib\mswu</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\boost;D:\cpplibs\include;F:\wxWidgets\include;F:\wxWidgets\lib\vc_lib\mswud</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
