@@ -54,7 +54,13 @@ void loadCfg()
 	}
 	std::string tmp;
 	std::getline(fin, tmp);
-	scriptURL = str2cstr(tmp);
+	char* ret = new char[tmp.size() + 1];
+#ifdef _MSC_VER
+	strcpy_s(ret, tmp.size() + 1, tmp.c_str());
+#else
+	strcpy(ret, tmp.c_str());
+#endif
+	scriptURL = ret;
 	fin.close();
 }
 
@@ -73,10 +79,11 @@ mainFrame::mainFrame(const wxString& title)
 		);
 
 	wxArrayString groupList;
-	std::for_each(grpList.begin(), grpList.end(), [&groupList](std::pair<size_t, group*> gPtr){
+	for (std::pair<size_t, group*> gPtr : grpList)
+	{
 		groupList.push_back(gPtr.second->getName());
 		grpListDisp.push_back(gPtr.first);
-	});
+	};
 
 	listGroup = new wxCheckListBox(staticGroup, ID_LISTGROUP,
 		wxPoint(6, _GUI_GAP),
@@ -228,29 +235,25 @@ void mainFrame::refMemDispList()
 	listGroup->GetCheckedItems(sel);
 	wxArrayInt::iterator itrG = sel.begin(), itrGEnd = sel.end();
 	std::list<size_t> members;
-	std::list<size_t>::iterator itrM, itrMEnd;
 	std::set<size_t> memDispTmp;
-	std::set<size_t>::iterator itrD, itrDEnd;
 	std::wstring maskName = textSearchMem->GetValue().ToStdWstring();
 	bool enableSearch = !maskName.empty();
 	for (; itrG != itrGEnd; itrG++)
 	{
 		members.clear();
 		grpList[grpListDisp[*itrG]]->getMember(members);
-		for (itrM = members.begin(), itrMEnd = members.end(); itrM != itrMEnd; itrM++)
-			memDispTmp.insert(*itrM);
+		for (size_t uid : members)
+			memDispTmp.insert(uid);
 	}
-	itrD = memDispTmp.begin();
-	itrDEnd = memDispTmp.end();
 	memListDisp.clear();
 	listMember->Clear();
 	std::wstring name;
-	for (; itrD != itrDEnd; itrD++)
+	for (size_t uid : memDispTmp)
 	{
-		name = memList[*itrD]->getName();
+		name = memList[uid]->getName();
 		if (!enableSearch || name.find(maskName) != std::wstring::npos)
 		{
-			memListDisp.push_back(*itrD);
+			memListDisp.push_back(uid);
 			listMember->Append(name);
 		}
 	}
@@ -275,9 +278,8 @@ void mainFrame::buttonAddG_Click(wxCommandEvent& event)
 		listGroup->Check(newIndex);
 		listMemGroup->Append(name);
 		grpListDisp.clear();
-		std::for_each(grpList.begin(), grpList.end(), [](std::pair<size_t, group*> gPtr){
+		for (std::pair<size_t, group*> gPtr : grpList)
 			grpListDisp.push_back(gPtr.first);
-		});
 		refMemDispList();
 	}
 }
@@ -292,17 +294,15 @@ void mainFrame::buttonDelG_Click(wxCommandEvent& event)
 		{
 			std::list<size_t> depMemList;
 			grpList[grpListDisp[grpIndex]]->getMember(depMemList);
-			std::for_each(depMemList.begin(), depMemList.end(), [grpIndex](size_t uID){
+			for (size_t uID : depMemList)
 				memList[uID]->delGroup(grpIndex);
-			});
 			errInfo err = delGrp(grpIndex);
 			checkErr;
 			listGroup->Delete(grpIndex);
 			listMemGroup->Delete(grpIndex);
 			grpListDisp.clear();
-			std::for_each(grpList.begin(), grpList.end(), [](std::pair<size_t, group*> gPtr){
+			for (std::pair<size_t, group*> gPtr : grpList)
 				grpListDisp.push_back(gPtr.first);
-			});
 			refMemDispList();
 		}
 	}
@@ -343,23 +343,22 @@ void mainFrame::listMember_SelectedIndexChanged(wxCommandEvent& event)
 
 	wxArrayInt checkedI;
 	listMemGroup->GetCheckedItems(checkedI);
-	std::for_each(checkedI.begin(), checkedI.end(), [this](size_t gID){
+	for (size_t gID : checkedI)
 		listMemGroup->Check(gID, false);
-	});
 	std::list<size_t> groupID;
 	sMem->getGroup(groupID);
-	std::for_each(groupID.begin(), groupID.end(), [this](size_t gID){
+	for (size_t gID : groupID)
 		listMemGroup->Check(gID);
-	});
 
 	std::list<size_t> workID;
 	sMem->getWork(workID);
 	workListDisp.clear();
 	listMemWork->Clear();
-	std::for_each(workID.begin(), workID.end(), [this](size_t wID){
+	for (size_t wID : workID)
+	{
 		listMemWork->Append(workList[wID]->getName());
 		workListDisp.push_back(wID);
-	});
+	}
 }
 
 void mainFrame::buttonAddM_Click(wxCommandEvent& event)
@@ -396,14 +395,12 @@ void mainFrame::buttonDelM_Click(wxCommandEvent& event)
 		{
 			std::list<size_t> depList;
 			memList[memIndex]->getGroup(depList);
-			std::for_each(depList.begin(), depList.end(), [memIndex](size_t gID){
+			for (size_t gID : depList)
 				grpList[grpListDisp[gID]]->delMember(memIndex);
-			});
 			depList.clear();
 			memList[memIndex]->getWork(depList);
-			std::for_each(depList.begin(), depList.end(), [memIndex](size_t wID){
+			for (size_t wID : depList)
 				workList[wID]->delMember(memIndex);
-			});
 			errInfo err = delMem(memIndex);
 			if (err.err)
 			{
@@ -470,9 +467,8 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 {
 	wxArrayString choices;
 	choices.push_back(wxT("[新工作]"));
-	std::for_each(workList.begin(), workList.end(), [&choices](std::pair<size_t, work*> wPtr){
+	for (std::pair<size_t, work*> wPtr : workList)
 		choices.push_back(wPtr.second->getName());
-	});
 	wxSingleChoiceDialog addDlg(this, wxT("请选择工作"), wxT("选择工作"), choices);
 	int result = addDlg.ShowModal();
 	if (result == wxID_CANCEL)
@@ -507,10 +503,11 @@ void mainFrame::buttonAddMW_Click(wxCommandEvent& event)
 	sMem->getWork(workID);
 	workListDisp.clear();
 	listMemWork->Clear();
-	std::for_each(workID.begin(), workID.end(), [this](size_t wID){
+	for (size_t wID : workID)
+	{
 		listMemWork->Append(workList[wID]->getName());
 		workListDisp.push_back(wID);
-	});
+	}
 }
 
 void mainFrame::buttonDelMW_Click(wxCommandEvent& event)
@@ -532,10 +529,11 @@ void mainFrame::buttonDelMW_Click(wxCommandEvent& event)
 		memList[uID]->getWork(workID);
 		workListDisp.clear();
 		listMemWork->Clear();
-		std::for_each(workID.begin(), workID.end(), [this](size_t wID){
+		for (size_t wID : workID)
+		{
 			listMemWork->Append(workList[wID]->getName());
 			workListDisp.push_back(wID);
-		});
+		}
 	}
 }
 

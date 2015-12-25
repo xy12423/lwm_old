@@ -14,10 +14,12 @@ struct errInfo
 
 typedef unsigned char BYTE;
 
-char* str2cstr(std::string arg);
-std::string num2str(long long n);
 std::string encode(std::string str);
 std::string encode(const std::wstring &str);
 std::wstring decode(const std::string &str);
+
+int str2num(std::string str, size_t &ret);
+void processEscChar(std::string &str);
+void toSingleLine(std::string &str);
 
 #endif

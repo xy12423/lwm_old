@@ -28,6 +28,4 @@ typedef unsigned char BYTE;
 typedef std::string dataBuf;
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
 
-int str2num(std::string str, size_t &ret, int type = 0);
-
 #endif

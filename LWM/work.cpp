@@ -17,11 +17,10 @@ errInfo readWorkList()
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
-	char *errBuf = new char[2048];
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, "field=work&operation=list");
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -29,16 +28,13 @@ errInfo readWorkList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
 
-	std::for_each(workList.begin(), workList.end(), [](std::pair<size_t, work*> wPtr){
+	for (std::pair<size_t, work*> wPtr : workList)
 		delete wPtr.second;
-	});
 	workList.clear();
 
 	dataBuf::const_iterator p, pEnd = buf.cend();
@@ -62,25 +58,21 @@ errInfo readWorkList()
 					if (str2num(data[LINE_WID], wID) != 0)
 						return errInfo("WID:Not a num");
 					work *newWork = new work(wID, decode(data[LINE_NAME]), decode(data[LINE_INFO]));
-					std::string name;
-					for (p2 = data[LINE_MEMBERS].cbegin(), pEnd2 = data[LINE_MEMBERS].cend(); p2 != pEnd2; p2++)
-					{
-						if (*p2 == ';')
-						{
-							if (str2num(name, uID) != 0)
-								return errInfo("UID:Not a num");
-							newWork->members.insert(uID);
-							name.clear();
-						}
-						else
-							name.push_back(*p2);
-					}
+
+					std::string name = std::move(data[LINE_MEMBERS]);
 					if (!name.empty())
 					{
-						if (str2num(name, uID) != 0)
-							return errInfo("UID:Not a num");
-						newWork->members.insert(uID);
-						name.clear();
+						if (name.back() != ';')
+							name.push_back(';');
+						size_t pos1 = 0, pos2 = name.find(';');
+						while (pos2 != std::string::npos)
+						{
+							if (str2num(name.substr(pos1, pos2 - pos1), uID) != 0)
+								return errInfo("UID:Not a num");
+							newWork->members.insert(uID);
+							pos1 = pos2 + 1;
+							pos2 = name.find(';', pos1);
+						}
 					}
 
 					workList.emplace(wID, newWork);
@@ -107,12 +99,11 @@ errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
 	std::string postField = "field=work&operation=add&name=" + encode(name) + "&info=" + encode(info);
-	char *errBuf = new char[2048];
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -120,13 +111,11 @@ errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
-
+	
 	size_t newID;
 	if (str2num(buf, newID) != 0)
 		return errInfo(std::string("E:Server side error:") + buf);
@@ -142,12 +131,11 @@ errInfo delWork(size_t wID)
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
-	std::string postField = "field=work&operation=del&id=" + num2str(wID);
-	char *errBuf = new char[2048];
+	std::string postField = "field=work&operation=del&id=" + std::to_string(wID);
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -155,13 +143,11 @@ errInfo delWork(size_t wID)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
-
+	
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
 
@@ -174,12 +160,11 @@ errInfo work::editName(const std::wstring &newName)
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
-	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=name&value=" + encode(newName);
-	char *errBuf = new char[2048];
+	std::string postField = "field=work&operation=edit&id=" + std::to_string(wID) + "&item=name&value=" + encode(newName);
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -187,13 +172,11 @@ errInfo work::editName(const std::wstring &newName)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
-
+	
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
 
@@ -206,12 +189,11 @@ errInfo work::editInfo(const std::wstring &newInfo)
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
-	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=info&value=" + encode(newInfo);
-	char *errBuf = new char[2048];
+	std::string postField = "field=work&operation=edit&id=" + std::to_string(wID) + "&item=info&value=" + encode(newInfo);
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -219,13 +201,11 @@ errInfo work::editInfo(const std::wstring &newInfo)
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
-
+	
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
 
@@ -247,19 +227,19 @@ errInfo work::delMember(size_t uID)
 errInfo work::writeMemList()
 {
 	std::string newMemberStr;
-	std::for_each(members.begin(), members.end(), [&newMemberStr](size_t uID){
-		newMemberStr.append(num2str(uID));
+	for (size_t uID : members)
+	{
+		newMemberStr.append(std::to_string(uID));
 		newMemberStr.push_back(';');
-	});
+	}
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	char *addCStr = str2cstr(scriptURL);
-	std::string postField = "field=work&operation=edit&id=" + num2str(wID) + "&item=member&value=" + encode(newMemberStr);
-	char *errBuf = new char[2048];
+	std::string postField = "field=work&operation=edit&id=" + std::to_string(wID) + "&item=member&value=" + encode(newMemberStr);
+	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
-	curl_easy_setopt(handle, CURLOPT_URL, addCStr);
-	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf);
+	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errBuf.get());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, postField.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buf);
@@ -267,13 +247,11 @@ errInfo work::writeMemList()
 	if (success != CURLcode::CURLE_OK)
 	{
 		curl_easy_cleanup(handle);
-		std::string err(errBuf);
-		delete[] errBuf;
+		std::string err(errBuf.get());
 		return errInfo("E:network:" + err);
 	}
 	curl_easy_cleanup(handle);
-	delete[] errBuf;
-
+	
 	if (!buf.empty())
 		return errInfo(std::string("E:Server side error:") + buf);
 

@@ -1,27 +1,6 @@
 #include "stdafx.h"
 #include "utils.h"
 
-char* str2cstr(std::string arg)
-{
-	char* ret = new char[arg.size() + 1];
-#ifdef _MSC_VER
-	strcpy_s(ret, arg.size() + 1, arg.c_str());
-#else
-	strcpy(ret, arg.c_str());
-#endif
-	return ret;
-}
-
-std::string num2str(long long n)
-{
-	static std::stringstream sstr;
-	std::string ret;
-	sstr.clear();
-	sstr << n;
-	sstr >> ret;
-	return ret;
-}
-
 const char encode64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const char decode64[] = {
 	-1, -1, -1, -1, -1, -1, -1, -1,
@@ -99,3 +78,110 @@ std::wstring decode(const std::string &str)
 		return std::wstring();
 	return std::wstring(buf);
 }
+
+int str2num(std::string str, size_t &ret)
+{
+	try
+	{
+		ret = std::stoul(str, 0);
+		return 0;
+	}
+	catch (...) {}
+	return -1;
+}
+
+void processEscChar(std::string &str)
+{
+	std::string::iterator itr = str.begin();
+	for (; itr != str.end(); itr++)
+	{
+		if (*itr == '\\')
+		{
+			char replace = '\0';
+			itr = str.erase(itr);
+			if (itr == str.end())
+				break;
+			switch (*itr)
+			{
+				case 'a':
+					replace = '\a';
+					break;
+				case 'b':
+					replace = '\b';
+					break;
+				case 'f':
+					replace = '\f';
+					break;
+				case 'n':
+					replace = '\n';
+					break;
+				case 'r':
+					replace = '\r';
+					break;
+				case 't':
+					replace = '\t';
+					break;
+				case 'v':
+					replace = '\v';
+					break;
+				case '\\':
+					replace = '\\';
+					break;
+				case '\'':
+					replace = '\'';
+					break;
+				case '\"':
+					replace = '\"';
+					break;
+				case 'x':
+				{
+					std::stringstream tmp;
+					tmp << std::hex;
+					for (int i = 0; i < 2 && itr != str.end(); i++)
+					{
+						itr = str.erase(itr);
+						if (!isxdigit(*itr))
+							break;
+						tmp << *itr;
+					}
+					itr = str.insert(itr, '\0');
+					int tmpn = 0;
+					tmp >> tmpn;
+					replace = tmpn;
+					break;
+				}
+				default:
+				{
+					if (*itr > '7' || *itr < '0')
+						return;
+					std::stringstream tmp;
+					tmp << std::oct;
+					for (int i = 0; i < 3 && itr != str.end(); i++)
+					{
+						if (*itr > '7' || *itr < '0')
+							break;
+						tmp << *itr;
+						itr = str.erase(itr);
+					}
+					itr = str.insert(itr, '\0');
+					int tmpn = 0;
+					tmp >> tmpn;
+					replace = tmpn;
+				}
+			}
+
+			*itr = replace;
+		}
+	}
+}
+
+void toSingleLine(std::string &str)
+{
+	size_t pos = str.find('\n');
+	while (pos != std::string::npos)
+	{
+		str.replace(pos, 1, "\\n");
+		pos = str.find('\n', pos + 2);
+	}
+}
+

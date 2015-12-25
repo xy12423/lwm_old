@@ -8,10 +8,13 @@
 class group
 {
 public:
-	group(size_t _gID, const std::wstring &_name){ gID = _gID; name = _name; };
+	group(size_t _gID, const std::wstring &_name)
+		:gID(_gID), name(_name) {}
+	group(size_t _gID, std::wstring &&_name)
+		:gID(_gID), name(_name) {}
 	size_t getGID(){ return gID; };
 	const std::wstring &getName(){ return name; };
-	void getMember(std::list<size_t> &ret){ std::for_each(members.begin(), members.end(), [&ret](size_t uID){ ret.push_back(uID); }); };
+	void getMember(std::list<size_t> &ret) { for (size_t uID : members) { ret.push_back(uID); }; };
 
 	errInfo editName(const std::wstring &newName);
 	errInfo addMember(size_t uID);

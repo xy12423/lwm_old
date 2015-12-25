@@ -8,11 +8,14 @@
 class work
 {
 public:
-	work(size_t _wID, const std::wstring &_name, const std::wstring &_info){ wID = _wID; name = _name; info = _info; };
+	work(size_t _wID, const std::wstring &_name, const std::wstring &_info)
+		:wID(_wID), name(_name), info(_info) {}
+	work(size_t _wID, std::wstring &&_name, std::wstring &&_info)
+		:wID(_wID), name(_name), info(_info) {}
 	size_t getWID(){ return wID; };
 	const std::wstring &getName(){ return name; };
 	const std::wstring &getInfo(){ return info; };
-	void getMember(std::list<size_t> &ret){ std::for_each(members.begin(), members.end(), [&ret](size_t uID){ ret.push_back(uID); }); };
+	void getMember(std::list<size_t> &ret){ for (size_t uID : members) { ret.push_back(uID); }; };
 
 	errInfo editName(const std::wstring &newName);
 	errInfo editInfo(const std::wstring &newInfo);
