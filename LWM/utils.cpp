@@ -175,13 +175,27 @@ void processEscChar(std::string &str)
 	}
 }
 
-void toSingleLine(std::string &str)
+std::string toSingleLine(const std::string &str)
 {
-	size_t pos = str.find('\n');
+	std::string ret = str;
+	size_t pos = ret.find('\n');
 	while (pos != std::string::npos)
 	{
-		str.replace(pos, 1, "\\n");
-		pos = str.find('\n', pos + 2);
+		ret.replace(pos, 1, "\\n");
+		pos = ret.find('\n', pos + 2);
 	}
+	return ret;
+}
+
+std::wstring toSingleLine(const std::wstring &str)
+{
+	std::wstring ret = str;
+	size_t pos = ret.find('\n');
+	while (pos != std::wstring::npos)
+	{
+		ret.replace(pos, 1, L"\\n");
+		pos = ret.find('\n', pos + 2);
+	}
+	return ret;
 }
 

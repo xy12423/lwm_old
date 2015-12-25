@@ -57,6 +57,7 @@ errInfo readWorkList()
 					size_t wID, uID;
 					if (str2num(data[LINE_WID], wID) != 0)
 						return errInfo("WID:Not a num");
+					processEscChar(data[LINE_INFO]);
 					work *newWork = new work(wID, decode(data[LINE_NAME]), decode(data[LINE_INFO]));
 
 					std::string name = std::move(data[LINE_MEMBERS]);
@@ -99,7 +100,7 @@ errInfo newWork(const std::wstring &name, const std::wstring &info, work **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	std::string postField = "field=work&operation=add&name=" + encode(name) + "&info=" + encode(info);
+	std::string postField = "field=work&operation=add&name=" + encode(name) + "&info=" + encode(toSingleLine(info));
 	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
@@ -189,7 +190,7 @@ errInfo work::editInfo(const std::wstring &newInfo)
 
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	std::string postField = "field=work&operation=edit&id=" + std::to_string(wID) + "&item=info&value=" + encode(newInfo);
+	std::string postField = "field=work&operation=edit&id=" + std::to_string(wID) + "&item=info&value=" + encode(toSingleLine(newInfo));
 	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);

@@ -10,7 +10,7 @@
 		die("E:Field not set");
 	if (!isset($_POST["operation"]))
 		die("E:Operation not set");
-	$con = mysql_connect("localhost", "", "");
+	$con = mysql_connect("localhost", "root", "");
 	if (!$con) die(mysql_error());
 	$result = mysql_select_db("workmanager", $con);
 	if (!$result) die(mysql_error());
@@ -58,7 +58,7 @@
 					$newID = $row['count'];
 					$result = mysql_query("UPDATE `data` SET `count`=" . ($newID + 1) . " WHERE `name`='member'", $con);
 					if (!$result) die(mysql_error());
-					$result = mysql_query("INSERT INTO `member` (`id`, `name`, `src`, `info`) VALUES (" . ($newID) . ",'" . decodeStr($_POST["name"]) . "','" . decodeStr($_POST["src"]) . "','" . decodeStr($_POST["info"]) . "')", $con);
+					$result = mysql_query("INSERT INTO `member` (`id`, `name`, `src`, `info`) VALUES (" . ($newID) . ",'" . decodeStr($_POST["name"]) . "','" . decodeStr($_POST["src"]) . "','" . mysql_real_escape_string(decodeStr($_POST["info"])) . "')", $con);
 					if (!$result) die(mysql_error());
 					echo $newID;
 					break;
@@ -71,7 +71,7 @@
 					$newID = $row['count'];
 					$result = mysql_query("UPDATE `data` SET `count`=" . ($newID + 1) . " WHERE `name`='work'", $con);
 					if (!$result) die(mysql_error());
-					$result = mysql_query("INSERT INTO `work` (`id`, `name`, `info`) VALUES (" . ($newID) . ",'" . decodeStr($_POST["name"]) . "','" . decodeStr($_POST["info"]) . "')", $con);
+					$result = mysql_query("INSERT INTO `work` (`id`, `name`, `info`) VALUES (" . ($newID) . ",'" . decodeStr($_POST["name"]) . "','" . mysql_real_escape_string(decodeStr($_POST["info"])) . "')", $con);
 					if (!$result) die(mysql_error());
 					echo $newID;
 					break;
@@ -99,7 +99,7 @@
 				die("E:Item not set");
 			if (!isset($_POST["value"]))
 				die("E:Value not set");
-			$_POST["value"] = decodeStr($_POST["value"]);
+			$_POST["value"] = mysql_real_escape_string(decodeStr($_POST["value"]));
 			switch ($_POST["field"])
 			{
 				case "group":

@@ -1,6 +1,8 @@
 <?php
 	function myErrHandler($error_level, $error_message){}
 	
+    $addr = "\\";
+    
 	function query_list($field, $con)
 	{
 		$result = mysql_query("SELECT * FROM `" . $field . "`", $con);
@@ -13,7 +15,7 @@
 			case "work":
 				while($row = mysql_fetch_array($result))
 				{
-					echo "<a href=\"view.php?field=" . $field . "&id=" . $row['id'] . "\">" . $row['name'] . "</a><br />";
+					echo "<a href=\"" . $addr . "?field=" . $field . "&id=" . $row['id'] . "\">" . $row['name'] . "</a><br />";
 				}
 				break;
 			default:
@@ -35,7 +37,7 @@
 			if (!$result) die(mysql_error());
 			while($row = mysql_fetch_array($result))
 			{
-				echo "<a href=\"view.php?field=" . $field . "&id=" . $id . "\">" . $row['name'] . "</a><br />";
+				echo "<a href=\"" . $addr . "?field=" . $field . "&id=" . $id . "\">" . $row['name'] . "</a><br />";
 			}
 		}
 	}
@@ -59,7 +61,7 @@
 			case "member":
 				while($row = mysql_fetch_array($result))
 				{
-					echo "<p>Name:" . $row['name'] . "<br />Source:" . $row['src'] . "<br />Info:" . $row['info'] . "</p>";
+					echo "<p>Name:" . $row['name'] . "<br />Source:" . $row['src'] . "<br />Info:" . str_replace("\n", "<br />", stripcslashes($row['info'])) . "</p>";
 					echo "<p>Groups:<br />";
 					split_list('group', $row['group'], $con);
 					echo "</p>";
@@ -71,7 +73,7 @@
 			case "work":
 				while($row = mysql_fetch_array($result))
 				{
-					echo "<p>Name:" . $row['name'] . "<br />Info:" . $row['info'] . "</p>";
+					echo "<p>Name:" . $row['name'] . "<br />Info:" . str_replace("\n", "<br />", stripcslashes($row['info'])) . "</p>";
 					echo "<p>Members:<br />";
 					split_list('member', $row['member'], $con);
 					echo "</p>";
@@ -81,13 +83,13 @@
 	}
 	
 	set_error_handler('myErrHandler', E_NOTICE);
-	$con = mysql_connect("localhost", "", "");
+	$con = mysql_connect("localhost", "root", "");
 	if (!$con) die(mysql_error());
 	$result = mysql_select_db("workmanager", $con);
 	if (!$result) die(mysql_error());
 	if (isset($_GET["field"]))
 	{
-		echo "<p><a href=\"view.php\">Home</a></p>";
+		echo "<p><a href=\"" . $addr . "\">Home</a></p>";
 		//Run query
 		query_info($_GET["field"], $_GET["id"], $con);
 	}

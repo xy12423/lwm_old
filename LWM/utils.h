@@ -20,6 +20,7 @@ std::wstring decode(const std::string &str);
 
 int str2num(std::string str, size_t &ret);
 void processEscChar(std::string &str);
-void toSingleLine(std::string &str);
+std::string toSingleLine(const std::string &str);
+std::wstring toSingleLine(const std::wstring &str);
 
 #endif

@@ -58,6 +58,7 @@ errInfo readMemList()
 					size_t uID, gID, wID;
 					if (str2num(data[LINE_UID], uID) != 0)
 						return errInfo("UID:Not a num");
+					processEscChar(data[LINE_INFO]);
 					member *newMember = new member(uID, decode(data[LINE_NAME]), uExtInfo(decode(data[LINE_SRC]), decode(data[LINE_INFO])));
 
 					std::string name = std::move(data[LINE_GROUPS]);
@@ -116,7 +117,7 @@ errInfo newMem(const std::wstring &name, const uExtInfo &extInfo, member **ret)
 {
 	dataBuf buf;
 	CURL *handle = curl_easy_init();
-	std::string postField = "field=member&operation=add&name=" + encode(name) + "&src=" + encode(extInfo.src) + "&info=" + encode(extInfo.info);
+	std::string postField = "field=member&operation=add&name=" + encode(name) + "&src=" + encode(extInfo.src) + "&info=" + encode(toSingleLine(extInfo.info));
 	std::unique_ptr<char[]> errBuf = std::make_unique<char[]>(2048);
 	CURLcode success;
 	curl_easy_setopt(handle, CURLOPT_URL, scriptURL);
@@ -265,7 +266,7 @@ errInfo member::applyEdit()
 	doEDIT;
 	postField = postFieldPre + "&item=src&value=" + encode(extInfo.src);
 	doEDIT;
-	postField = postFieldPre + "&item=info&value=" + encode(extInfo.info);
+	postField = postFieldPre + "&item=info&value=" + encode(toSingleLine(extInfo.info));
 	doEDIT;
 
 	curl_easy_cleanup(handle);
